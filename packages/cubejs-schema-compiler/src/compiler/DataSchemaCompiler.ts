@@ -666,6 +666,9 @@ export class DataSchemaCompiler {
       errorsReport.addErrors(res.errors);
       errorsReport.addWarnings(res.warnings);
 
+      file.content = res.content;
+      file.convertedToJs = true;
+
       return { ...file, content: res.content };
     } else {
       const transpiledFile = this.yamlCompiler.transpileYamlFile(file, errorsReport);
@@ -763,7 +766,9 @@ export class DataSchemaCompiler {
     compiledFiles[file.fileName] = true;
 
     if (file.convertedToJs) {
+      const compileJsFileTimer = perfTracker.start('compileJsFile (convertedToJs)');
       this.compileJsFile(file, errorsReport);
+      compileJsFileTimer.end();
     } else if (file.fileName.endsWith('.js')) {
       const compileJsFileTimer = perfTracker.start('compileJsFile');
       this.compileJsFile(file, errorsReport, { doSyntaxCheck });
